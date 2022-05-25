@@ -56,17 +56,32 @@ const ScreenForm = styled.main`
         line-height: 25px;
     }
 
+    input:disabled {
+        color: #AFAFAF;
+        background: #F2F2F2
+    }
+
    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
         width: 303px;
         max-width: 100%;
         height: 45px;
-        
+
+        font-weight: 400;
+        font-size: 20.976px;
+        line-height: 26px; 
+
         color: var(--color-white);
         background: var(--color-blue);
         border-radius: 4.63636px;
    }
 
-   a {
+   a, a:link, a:visited, .linkDisabled{
+       text-decoration: underline;
+       color: var(--color-blue);
        margin-top: 25px;;
    }
 `;
