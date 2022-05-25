@@ -1,20 +1,61 @@
-import { Link } from "react-router-dom";
+import React from 'react';
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
+
+import Loading from './sharedComponents/Loading';
 import logo from '../assets/logo.png';
 
-export function Login (){
+export function Login() {
+    const navigate = useNavigate();
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [disabled, setDisabled] = React.useState(false);
+    const [buttonContent, setButtonContent] = React.useState('Entrar');
+
+    function submitData(event) {
+        event.preventDefault();
+        setDisabled(true);
+        setButtonContent(<Loading size={50} />);
+        const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login`;
+        const promise = axios.post(URL,
+            {
+                email: email,
+                password: password
+            });
+        promise.then((response) => {
+            navigate('/hoje');
+            console.log(response);
+        }).catch((err) => {
+            setDisabled(false);
+            setButtonContent('Entrar');
+            alert('Erro no login');
+            console.log(err);
+        });
+    }
+
     return (
         <ScreenForm>
             <img src={logo} alt='Logo do TrackIt' />
-            <form action="|">
+            <form onSubmit={submitData}>
                 <input
+                    disabled={disabled}
                     type='email'
-                    placeholder='email'/>
+                    placeholder='email'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required />
                 <input
+                    disabled={disabled}
                     type='password'
-                    placeholder='senha' />
-                <button type='submit'>Entrar</button>
-                <Link to='/cadastro'>Não tem uma conta? Cadastre-se!</Link>
+                    placeholder='senha'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required />
+                <button type='submit' disabled={disabled}>{buttonContent}</button>
+                {disabled ?
+                    <span className='linkDisabled'>Não tem uma conta? Cadastre-se!</span>
+                    : <Link to='/cadastro'>Não tem uma conta? Cadastre-se!</Link>}
             </form>
         </ScreenForm>
     );
