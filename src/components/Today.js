@@ -1,5 +1,12 @@
+import FooterMenu from "./sharedComponents/FooterMenu";
+import Header from "./sharedComponents/Header";
+
 export default function Today (){
     return (
-        <h1>Today</h1>
+        <>
+            <Header />
+            <h1>Today</h1>
+            <FooterMenu />
+        </>
     );
 }
