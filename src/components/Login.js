@@ -32,12 +32,10 @@ export function Login() {
             navigate('/hoje');
             setAvatar(response.data.image);
             setToken(response.data.token);
-            console.log(response);
         }).catch((err) => {
             setDisabled(false);
             setButtonContent('Entrar');
             alert('Erro no login');
-            console.log(err);
         });
     }
 
