@@ -8,7 +8,7 @@ export default function FooterMenu() {
 
     return (
         <FooterMenuStyle>
-            <div className='footerContent'>
+            <FooterContent>
                 <Link to='/habitos'>Hábitos</Link>
                 <Link to='/hoje'>
                     <Progressbar>
@@ -26,7 +26,7 @@ export default function FooterMenu() {
                     </Progressbar>
                 </Link>
                 <Link to='/historico'>Histórico</Link>
-            </div>
+            </FooterContent>
         </FooterMenuStyle>
     );
 }
@@ -42,18 +42,9 @@ const FooterMenuStyle = styled.footer`
     width: 100%;
     max-width: 100%;
     height: 70px;
-    padding: 22px 38px 26px 38px;
-    
-    .footerContent {
-        display: flex;
-        justify-content: space-between;
 
-        position: relative;
+    background: #FFFFFF;
 
-        width: 375px;
-        max-width: 100%;
-        height: 100%;
-    }
     a {
         font-weight: 400;
         font-size: 17.976px;
@@ -63,11 +54,24 @@ const FooterMenuStyle = styled.footer`
     }
 `;
 
+const FooterContent = styled.div`
+    display: flex;
+    justify-content: space-between;
+
+    position: relative;
+
+    width: 375px;
+    max-width: 375px;
+    height: 100%;
+
+    padding: 22px 38px 26px 38px;
+`;
+
 const Progressbar = styled.div`
     width: 91px;
     max-width: 100%;
     height: 91px;
     position: absolute;
-    bottom: -15px;
+    bottom: 10px;
     left: calc(50% - 45.5px); 
 `;

@@ -3,6 +3,9 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 
+import { useContext } from "react";
+import UserContext from "../contexts/UserContext";
+
 import Loading from './sharedComponents/Loading';
 import logo from '../assets/logo.png';
 
@@ -12,6 +15,8 @@ export function Login() {
     const [password, setPassword] = React.useState('');
     const [disabled, setDisabled] = React.useState(false);
     const [buttonContent, setButtonContent] = React.useState('Entrar');
+
+    const {setAvatar, setToken} = useContext(UserContext);
 
     function submitData(event) {
         event.preventDefault();
@@ -25,6 +30,8 @@ export function Login() {
             });
         promise.then((response) => {
             navigate('/hoje');
+            setAvatar(response.data.image);
+            setToken(response.data.token);
             console.log(response);
         }).catch((err) => {
             setDisabled(false);
