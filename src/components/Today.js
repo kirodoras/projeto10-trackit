@@ -43,7 +43,7 @@ function TodayContent() {
     return (
         <TodayStyle>
             <Date>{date}</Date>
-            <HabitStats>Nenhum hábito concluído ainda</HabitStats>
+            <TodayStats>Nenhum hábito concluído ainda</TodayStats>
             <CardsPlaceToday>
                 <HabitToday></HabitToday>
             </CardsPlaceToday>
@@ -66,7 +66,7 @@ function HabitToday() {
     }
 
     return (
-        <HabitStyles>
+        <CardTodayStyles>
             <div>
                 <h2>Ler 1 capítulo de livro</h2>
                 <h3>Sequência atual: 1 dia</h3>
@@ -75,7 +75,7 @@ function HabitToday() {
             <MarkStyle onClick={() => MarkToggle()} bg={background}>
                 <ion-icon name="checkmark-outline"></ion-icon>
             </MarkStyle>
-        </HabitStyles>
+        </CardTodayStyles>
     );
 }
 
@@ -84,7 +84,7 @@ const TodayStyle = styled.main`
     max-width: 100%;
     height: 100%;
     max-height: 100%;
-    background: #E5E5E5;
+    background: #f2f2f2;
     margin-top: 70px;
     margin-bottom: 70px;
     overflow: hidden;
@@ -99,7 +99,7 @@ const Date = styled.h1`
     color: var(--color-dark-blue);
 `;
 
-const HabitStats = styled.span`
+const TodayStats = styled.span`
     font-weight: 400;
     font-size: 17.976px;
     line-height: 22px;
@@ -116,7 +116,7 @@ const CardsPlaceToday = styled.div`
 `;
 
 
-const HabitStyles = styled.div`
+const CardTodayStyles = styled.div`
     display: flex;
     justify-content: space-between;
 
