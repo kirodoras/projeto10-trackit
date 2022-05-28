@@ -12,6 +12,9 @@ import 'dayjs/locale/pt-br'
 
 export default function Today() {
     const { avatar, token } = useContext(UserContext);
+    const [cardsArray, setCardsArray] = React.useState([]);
+    const [update, setUpdate] = React.useState(false);
+
 
     React.useEffect(() => {
         if (token.length > 0) {
@@ -19,24 +22,25 @@ export default function Today() {
             const AUT = { headers: { Authorization: `Bearer ${token}` } };
             const promise = axios.get(URL, AUT);
             promise.then((response) => {
+                setCardsArray(response.data);
                 console.log(response.data);
             }).catch((err) => {
                 console.log('errou');
                 console.log(err.data);
             });
         }
-    }, [token]);
+    }, [token, update]);
 
     return (
         <>
             <Header avatar={avatar} />
-            <TodayContent />
+            <TodayContent cardsArray={cardsArray} update={update} setUpdate={setUpdate} />
             <FooterMenu />
         </>
     );
 }
 
-function TodayContent() {
+function TodayContent({ cardsArray, update, setUpdate }) {
     const dateInfo = dayjs().locale('pt-br').format('dddd, DD/MM');
     const date = dateInfo[0].toUpperCase() + dateInfo.substring(1);
 
@@ -45,35 +49,65 @@ function TodayContent() {
             <Date>{date}</Date>
             <TodayStats>Nenhum hábito concluído ainda</TodayStats>
             <CardsPlaceToday>
-                <CardToday></CardToday>
-                <CardToday></CardToday>
+                {cardsArray.map((value, index) =>
+                    <CardToday
+                        key={index}
+                        id={value.id}
+                        name={value.name}
+                        highestSequence={value.highestSequence}
+                        currentSequence={value.currentSequence}
+                        done={value.done}
+                        update={update}
+                        setUpdate={setUpdate} />)}
             </CardsPlaceToday>
         </TodayStyle>
     );
 }
 
-function CardToday() {
-    const [mark, setMark] = React.useState(false);
-    const [background, setBackground] = React.useState("#EBEBEB");
+function CardToday({ id, name, currentSequence, highestSequence, done, update, setUpdate }) {
+    const { token } = useContext(UserContext);
+
+    console.log(token);
+    function desmarcar() {
+        const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`;
+        const AUT = { headers: { Authorization: `Bearer ${token}` } };
+        const promise = axios.post(URL, null, AUT);
+        promise.then((response) => {
+            setUpdate(!update);
+            console.log(response.data)
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    function marcar() {
+        const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`;
+        const AUT = { headers: { Authorization: `Bearer ${token}` } };
+        const promise = axios.post(URL, null, AUT);
+        promise.then((response) => {
+            setUpdate(!update);
+            console.log(response.data)
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
 
     function MarkToggle() {
-        if (mark) {
-            setBackground('#EBEBEB');
-            setMark(false);
+        if (done) {
+            desmarcar();
         } else {
-            setBackground('#8FC549');
-            setMark(true);
+            marcar();
         }
     }
 
     return (
         <CardTodayStyles>
             <div>
-                <h2>Ler 1 capítulo de livro</h2>
-                <h3>Sequência atual: 1 dia</h3>
-                <h3>Seu recorde: 5 dias</h3>
+                <h2>{name}</h2>
+                <h3>Sequência atual: {currentSequence} dia</h3>
+                <h3>Seu recorde: {highestSequence} dias</h3>
             </div>
-            <MarkStyle onClick={MarkToggle} bg={background}>
+            <MarkStyle onClick={MarkToggle} done={done}>
                 <ion-icon name="checkmark-outline"></ion-icon>
             </MarkStyle>
         </CardTodayStyles>
@@ -154,7 +188,7 @@ const MarkStyle = styled.span`
 
     width: 69px;
     height: 69px;
-    background: ${(props) => props.bg};
+    background: ${(props) => props.done ? '#8FC549' : '#EBEBEB'};
     border: 1px solid #E7E7E7;
     border-radius: 5px;
 
