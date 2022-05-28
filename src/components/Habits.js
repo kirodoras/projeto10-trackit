@@ -1,10 +1,12 @@
 import React from 'react';
+import axios from "axios";
 import styled from 'styled-components';
 import FooterMenu from "./sharedComponents/FooterMenu";
 import Header from "./sharedComponents/Header";
 
 import { useContext } from "react";
 import UserContext from "../contexts/UserContext";
+import Loading from './sharedComponents/Loading';
 
 export default function Habits() {
     const { avatar, token } = useContext(UserContext);
@@ -12,49 +14,224 @@ export default function Habits() {
     return (
         <>
             <Header avatar={avatar} />
-            <HabitsContent></HabitsContent>
+            <HabitsContent token={token}></HabitsContent>
             <FooterMenu />
         </>
     );
 }
 
-function HabitsContent() {
+function HabitsContent({ token }) {
+    const [create, setCreate] = React.useState(false);
+    const [name, setName] = React.useState('');
+    const [arrayIdsDays, setArrayIdsDays] = React.useState([]);
+    const [cardsArray, setCardsArray] = React.useState([]);
+    const [update, setUpdate] = React.useState([]);
+    const [daysArray, setDaysArray] = React.useState([
+        { day: 'D', mark: false },
+        { day: 'S', mark: false },
+        { day: 'T', mark: false },
+        { day: 'Q', mark: false },
+        { day: 'Q', mark: false },
+        { day: 'S', mark: false },
+        { day: 'S', mark: false },
+    ]);
+
+    React.useEffect(() => {
+        if (token.length > 0) {
+            const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits`;
+            const AUT = { headers: { Authorization: `Bearer ${token}` } };
+            const promise = axios.get(URL, AUT);
+            promise.then((response) => {
+                setCardsArray(response.data);
+                console.log(response.data)
+            }).catch((err) => {
+                console.log('errou');
+                console.log(err.data);
+            });
+        }
+    }, [token, update]);
+
     return (
         <HabitsStyle>
             <HabitsHeader>
                 <h1>Meus hábitos</h1>
-                <button type='button'>+</button>
+                <button onClick={() => setCreate(!create)} type='button'>+</button>
             </HabitsHeader>
-            <CreateHabit />
-            <HabitsStats>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</HabitsStats>
+            {create &&
+                <CreateHabit
+                    token={token}
+                    setCreate={setCreate}
+                    daysArray={daysArray}
+                    setDaysArray={setDaysArray}
+                    name={name}
+                    setName={setName}
+                    arrayIdsDays={arrayIdsDays}
+                    setArrayIdsDays={setArrayIdsDays}
+                    setUpdate={setUpdate}
+                    update={update} />}
             <CardsPlaceHabits>
+                {cardsArray.length ?
+                    cardsArray.map((value, index) =>
+                        <CardsHabits
+                            key={index}
+                            id={value.id}
+                            name={value.name}
+                            days={value.days}
+                            setUpdate={setUpdate}
+                            update={update} />)
+                    : <HabitsStats>
+                        Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!
+                    </HabitsStats>}
             </CardsPlaceHabits>
         </HabitsStyle>
     );
 }
 
-function CreateHabit() {
+function CardsHabits({ name, days, id, setUpdate, update }) {
+    const { token } = useContext(UserContext);
+    const arrayDefault = [
+        { day: 'D', mark: false },
+        { day: 'S', mark: false },
+        { day: 'T', mark: false },
+        { day: 'Q', mark: false },
+        { day: 'Q', mark: false },
+        { day: 'S', mark: false },
+        { day: 'S', mark: false },
+    ];
+    arrayDefault.map((value, index) => {
+        if (days.includes(index)) {
+            return value.mark = true;
+        } else {
+            return value.mark;
+        }
+    });
+
+    function deleteCard() {
+        const confirmation = window.confirm('Deseja realmente excluir?');
+        if (confirmation) {
+            const AUT = { headers: { Authorization: `Bearer ${token}` } };
+            const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}`;
+            const promise = axios.delete(URL, AUT);
+            promise.then((response) => {
+                setUpdate(!update);
+                console.log(response.data);
+            }).catch((err) => {
+                alert('Erro em excluir habito');
+                console.log(err.data);
+            });
+        }
+    }
+
+    return (
+        <CardsHabitsStyles>
+            <div>
+                <h2>{name}</h2>
+                <Days>
+                    {arrayDefault.map((value, index) => <DayStyles
+                        mark={value.mark}
+                        key={index}>
+                        {value.day}
+                    </DayStyles>)}
+                </Days>
+            </div>
+            <ion-icon name="trash-outline" onClick={deleteCard}></ion-icon>
+        </CardsHabitsStyles>
+    );
+}
+
+function CreateHabit({ token, setCreate, daysArray, setDaysArray, name, setName, arrayIdsDays, setArrayIdsDays, setUpdate, update }) {
+    const [disabled, setDisabled] = React.useState(false);
+    const [buttonContent, setButtonContent] = React.useState('Salvar');
+
+    function addDay(id) {
+        daysArray[id].mark = true;
+        setDaysArray([...daysArray]);
+        setArrayIdsDays([...arrayIdsDays, id]);
+    }
+
+    function removeDay(id) {
+        daysArray[id].mark = false;
+        setDaysArray([...daysArray]);
+        setArrayIdsDays(arrayIdsDays.filter((value) => value !== id));
+    }
+
+    function submitData(event) {
+        event.preventDefault();
+        if (arrayIdsDays.length > 0) {
+            setDisabled(true);
+            setButtonContent(<Loading size={50} />);
+            const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits`;
+            const AUT = { headers: { Authorization: `Bearer ${token}` } };
+            const promise = axios.post(URL,
+                {
+                    name: name,
+                    days: arrayIdsDays
+                }, AUT);
+            promise.then((response) => {
+                setName('');
+                daysArray.map((value) => {
+                    if (value.mark) value.mark = false;
+                    return value;
+                });
+                setArrayIdsDays([]);
+                setDaysArray([...daysArray]);
+                setCreate(false);
+                setUpdate(!update);
+            }).catch((err) => {
+                setDisabled(false);
+                setButtonContent('Salvar');
+                alert('Erro em salvar');
+            });
+        } else {
+            alert('Selecione pelo menos uma dia..');
+        }
+    }
+
     return (
         <CreateHabitStyles>
-            <form>
+            <form onSubmit={submitData}>
                 <input
                     type="text"
-                    placeholder='nome do hábito' />
+                    placeholder='nome do hábito'
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={disabled}
+                    required />
                 <Days>
-                    <Day>D</Day>
-                    <Day>S</Day>
-                    <Day>T</Day>
-                    <Day>Q</Day>
-                    <Day>Q</Day>
-                    <Day>S</Day>
-                    <Day>S</Day>
+                    {daysArray.map((value, index) =>
+                        <Day
+                            value={value.day}
+                            mark={value.mark}
+                            id={index}
+                            key={index}
+                            addDay={() => addDay(index)}
+                            removeDay={() => removeDay(index)} />)}
                 </Days>
                 <ButtonsPlace>
-                    <CancelButton type='button'>Cancelar</CancelButton>
-                    <SaveButton type='submit'>Salvar</SaveButton>
+                    <CancelButton type='button' onClick={() => setCreate(false)} disabled={disabled}>Cancelar</CancelButton>
+                    <SaveButton type='submit' disabled={disabled}>
+                        {buttonContent}
+                    </SaveButton>
                 </ButtonsPlace>
             </form>
         </CreateHabitStyles>
+    );
+}
+
+function Day({ value, addDay, removeDay, mark }) {
+
+    function MarkToggle() {
+        if (mark) {
+            removeDay();
+        } else {
+            addDay();
+        }
+    }
+
+    return (
+        <DayStyles onClick={MarkToggle} mark={mark}>
+            {value}
+        </DayStyles>
     );
 }
 
@@ -152,15 +329,16 @@ const Days = styled.div`
     margin-top: 8px;
 `;
 
-const Day = styled.button`
+const DayStyles = styled.div`
     width: 30px;
     max-width: 100%;
     height: 30px;
     font-weight: 400;
     font-size: 19.976px;
     line-height: 25px;
-    color: #DBDBDB;
-    background: #FFFFFF;
+    text-align: center;
+    color: ${(props) => props.mark ? '#FFFFFF' : '#DBDBDB'};
+    background: ${(props) => props.mark ? '#CFCFCF' : '#FFFFFF'};
     border: 1px solid #D5D5D5;
     border-radius: 5px;
 `;
@@ -191,6 +369,33 @@ const CancelButton = styled.button`
 `;
 
 const SaveButton = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #FFFFFF;
     background: #52B6FF;
+`;
+
+const CardsHabitsStyles = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 340px;
+    max-width: 100%;
+    height: 91px;
+    background: #FFFFFF;
+    border-radius: 5px;
+    padding: 11px 10px 15px 14px;
+
+
+    div {
+        h2 {
+            font-weight: 400;
+            font-size: 19.976px;
+            line-height: 25px;
+            color: #666666;
+        }
+    }
+    ion-icon {
+        font-size: 23px;
+    }
 `;

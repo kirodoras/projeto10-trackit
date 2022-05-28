@@ -19,7 +19,7 @@ export default function Today() {
             const AUT = { headers: { Authorization: `Bearer ${token}` } };
             const promise = axios.get(URL, AUT);
             promise.then((response) => {
-                console.log(response);
+                console.log(response.data);
             }).catch((err) => {
                 console.log('errou');
                 console.log(err.data);
@@ -45,13 +45,14 @@ function TodayContent() {
             <Date>{date}</Date>
             <TodayStats>Nenhum hábito concluído ainda</TodayStats>
             <CardsPlaceToday>
-                <HabitToday></HabitToday>
+                <CardToday></CardToday>
+                <CardToday></CardToday>
             </CardsPlaceToday>
         </TodayStyle>
     );
 }
 
-function HabitToday() {
+function CardToday() {
     const [mark, setMark] = React.useState(false);
     const [background, setBackground] = React.useState("#EBEBEB");
 
@@ -72,7 +73,7 @@ function HabitToday() {
                 <h3>Sequência atual: 1 dia</h3>
                 <h3>Seu recorde: 5 dias</h3>
             </div>
-            <MarkStyle onClick={() => MarkToggle()} bg={background}>
+            <MarkStyle onClick={MarkToggle} bg={background}>
                 <ion-icon name="checkmark-outline"></ion-icon>
             </MarkStyle>
         </CardTodayStyles>
