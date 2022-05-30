@@ -15,9 +15,10 @@ import ErrorPage from "./components/ErrorPage";
 export default function App() {
     const [avatar, setAvatar] = React.useState('');
     const [token, setToken] = React.useState('');
+    const [percentage, setPercentage] = React.useState(0);
 
     return (
-        <UserContext.Provider value={{avatar, setAvatar, token, setToken}}>
+        <UserContext.Provider value={{avatar, setAvatar, token, setToken, percentage, setPercentage}}>
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Login />} />

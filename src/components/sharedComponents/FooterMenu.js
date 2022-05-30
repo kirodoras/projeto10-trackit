@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import "react-circular-progressbar/dist/styles.css";
 
+import { useContext } from "react";
+import UserContext from "../../contexts/UserContext";
+
 export default function FooterMenu() {
-    const percentage = 66;
+    const { percentage } = useContext(UserContext);
 
     return (
         <FooterMenuStyle>

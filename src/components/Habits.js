@@ -43,7 +43,6 @@ function HabitsContent({ token }) {
             const promise = axios.get(URL, AUT);
             promise.then((response) => {
                 setCardsArray(response.data);
-                console.log(response.data)
             }).catch((err) => {
                 console.log('errou');
                 console.log(err.data);
@@ -113,8 +112,7 @@ function CardsHabits({ name, days, id, setUpdate, update }) {
             const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}`;
             const promise = axios.delete(URL, AUT);
             promise.then((response) => {
-                setUpdate(!update);
-                console.log(response.data);
+                if(response)setUpdate(!update);
             }).catch((err) => {
                 alert('Erro em excluir habito');
                 console.log(err.data);

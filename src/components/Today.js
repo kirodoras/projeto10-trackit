@@ -23,7 +23,6 @@ export default function Today() {
             const promise = axios.get(URL, AUT);
             promise.then((response) => {
                 setCardsArray(response.data);
-                console.log(response.data);
             }).catch((err) => {
                 console.log('errou');
                 console.log(err.data);
@@ -41,13 +40,19 @@ export default function Today() {
 }
 
 function TodayContent({ cardsArray, update, setUpdate }) {
+    const { percentage, setPercentage } = useContext(UserContext);
     const dateInfo = dayjs().locale('pt-br').format('dddd, DD/MM');
     const date = dateInfo[0].toUpperCase() + dateInfo.substring(1);
+
+    React.useEffect(() => {
+        const CompletedHabits = cardsArray.filter((value) => value.done);
+        setPercentage(Math.round(CompletedHabits.length/ cardsArray.length * 100));
+    }, [cardsArray, setPercentage]);
 
     return (
         <TodayStyle>
             <Date>{date}</Date>
-            <TodayStats>Nenhum hábito concluído ainda</TodayStats>
+            <TodayStats percentage={percentage}>{percentage ? `${percentage}% dos hábitos concluídos`: 'Nenhum hábito concluído ainda' }</TodayStats>
             <CardsPlaceToday>
                 {cardsArray.map((value, index) =>
                     <CardToday
@@ -58,23 +63,22 @@ function TodayContent({ cardsArray, update, setUpdate }) {
                         currentSequence={value.currentSequence}
                         done={value.done}
                         update={update}
-                        setUpdate={setUpdate} />)}
+                        setUpdate={setUpdate}
+                        record={value.highestSequence === value.currentSequence && value.highestSequence } />)}
             </CardsPlaceToday>
         </TodayStyle>
     );
 }
 
-function CardToday({ id, name, currentSequence, highestSequence, done, update, setUpdate }) {
+function CardToday({ id, name, currentSequence, highestSequence, done, update, setUpdate, record }) {
     const { token } = useContext(UserContext);
 
-    console.log(token);
     function desmarcar() {
         const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`;
         const AUT = { headers: { Authorization: `Bearer ${token}` } };
         const promise = axios.post(URL, null, AUT);
         promise.then((response) => {
-            setUpdate(!update);
-            console.log(response.data)
+            if(response)setUpdate(!update);
         }).catch((err) => {
             console.log(err);
         });
@@ -85,8 +89,7 @@ function CardToday({ id, name, currentSequence, highestSequence, done, update, s
         const AUT = { headers: { Authorization: `Bearer ${token}` } };
         const promise = axios.post(URL, null, AUT);
         promise.then((response) => {
-            setUpdate(!update);
-            console.log(response.data)
+            if(response)setUpdate(!update);
         }).catch((err) => {
             console.log(err);
         });
@@ -101,11 +104,11 @@ function CardToday({ id, name, currentSequence, highestSequence, done, update, s
     }
 
     return (
-        <CardTodayStyles>
+        <CardTodayStyles done={done}>
             <div>
                 <h2>{name}</h2>
-                <h3>Sequência atual: {currentSequence} dia</h3>
-                <h3>Seu recorde: {highestSequence} dias</h3>
+                <h3>Sequência atual: <CurrentStyles done={done}>{currentSequence} dia(s)</CurrentStyles></h3>
+                <h3>Seu recorde: <HighestStyles record={record}>{highestSequence} dia(s)</HighestStyles></h3>
             </div>
             <MarkStyle onClick={MarkToggle} done={done}>
                 <ion-icon name="checkmark-outline"></ion-icon>
@@ -139,7 +142,7 @@ const TodayStats = styled.span`
     font-size: 17.976px;
     line-height: 22px;
 
-    color: #BABABA;
+    color: ${(props) => props.percentage ? '#8FC549' : '#BABABA' };
 `;
 
 const CardsPlaceToday = styled.div`
@@ -179,6 +182,14 @@ const CardTodayStyles = styled.div`
             line-height: 16px;
         }
     }
+`;
+
+const CurrentStyles = styled.span`
+    color: ${(props) => props.done ? '#8FC549' : '#666666'};
+`;
+
+const HighestStyles = styled.span`
+    color: ${(props) => props.record ? '#8FC549' : '#666666'};
 `;
 
 const MarkStyle = styled.span`
