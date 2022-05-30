@@ -14,7 +14,8 @@ export default function Today() {
     const { avatar, token } = useContext(UserContext);
     const [cardsArray, setCardsArray] = React.useState([]);
     const [update, setUpdate] = React.useState(false);
-
+    const dateInfo = dayjs().locale('pt-br').format('dddd, DD/MM');
+    const date = dateInfo[0].toUpperCase() + dateInfo.substring(1);
 
     React.useEffect(() => {
         if (token.length > 0) {
@@ -33,16 +34,14 @@ export default function Today() {
     return (
         <>
             <Header avatar={avatar} />
-            <TodayContent cardsArray={cardsArray} update={update} setUpdate={setUpdate} />
+            <TodayContent date={date} cardsArray={cardsArray} update={update} setUpdate={setUpdate} />
             <FooterMenu />
         </>
     );
 }
 
-function TodayContent({ cardsArray, update, setUpdate }) {
+function TodayContent({ cardsArray, update, setUpdate, date }) {
     const { percentage, setPercentage } = useContext(UserContext);
-    const dateInfo = dayjs().locale('pt-br').format('dddd, DD/MM');
-    const date = dateInfo[0].toUpperCase() + dateInfo.substring(1);
 
     React.useEffect(() => {
         const CompletedHabits = cardsArray.filter((value) => value.done);
