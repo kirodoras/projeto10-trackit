@@ -16,7 +16,14 @@ export function Login() {
     const [disabled, setDisabled] = React.useState(false);
     const [buttonContent, setButtonContent] = React.useState('Entrar');
 
-    const {setAvatar, setToken} = useContext(UserContext);
+    const { setAvatar, setToken, avatar, token } = useContext(UserContext);
+
+    React.useEffect(() => {
+        if (token !== '' && token !== undefined && token !== null &&
+            avatar !== undefined && avatar !== null && avatar !== '') {
+            navigate('/hoje');
+        }
+    }, [token, avatar, navigate]);
 
     function submitData(event) {
         event.preventDefault();
@@ -32,6 +39,8 @@ export function Login() {
             navigate('/hoje');
             setAvatar(response.data.image);
             setToken(response.data.token);
+            localStorage.setItem('TrackIt-Avatar', response.data.image);
+            localStorage.setItem('TrackIt-Token', response.data.token);
         }).catch((err) => {
             setDisabled(false);
             setButtonContent('Entrar');
